@@ -3,35 +3,66 @@ public class ScoreCalculator {
 
 	String pointSeq;
 
-	int[][] scores=new int[3][2];
+	//int[][] scores=new int[3][2];
 	
+	Player playerA;
+	Player playerB;
 	
 	public ScoreCalculator(String inputScore) {
 		this.pointSeq = inputScore;
+		playerA = new Player(0, 0, 0);
+		playerB = new Player(0, 0, 0);
 	}
 	
 	static String[] points={"love","15","30","40","advantage"};
+	
 	void handleWin(int i){
-		scores[1][i] +=1;
-		scores[2][0]=0;
-		scores[2][1]=0;
-		if(scores[1][0]>=6&&(scores[1][0]-scores[1][1])>2){
-			scores[1][0]=0;
-			scores[1][1]=0;
-			scores[0][0]++;
+		if (i ==0 ){
+			playerA.games += 1;
+		} else 
+			playerB.games += 1;
+		
+		playerA.points = 0;
+		playerB.points = 0;
+		
+//		scores[1][i] +=1;
+//		scores[2][0]=0;
+//		scores[2][1]=0;
+//		if(scores[1][0] >= 6&& ( scores[1][0] - scores[1][1] ) > 2){
+//			scores[1][0]=0;
+//			scores[1][1]=0;
+//			scores[0][0]++;
+//		}
+//		if(scores[1][1]>=6&&(scores[1][1]-scores[1][0])>2){
+//			scores[1][0]=0;
+//			scores[1][1]=0;
+//			scores[0][1]++;
+//		}
+		
+		if (playerA.games >= 6 && (playerA.games - playerB.games) > 2) {
+			
+			playerA.sets += 1;
+			playerA.games = 0;
+			playerB.games = 0;
 		}
-		if(scores[1][1]>=6&&(scores[1][1]-scores[1][0])>2){
-			scores[1][0]=0;
-			scores[1][1]=0;
-			scores[0][1]++;
+		if (playerB.games >= 6 && (playerB.games - playerA.games) > 2) {
+			
+			playerB.sets += 1;
+			playerA.games = 0;
+			playerB.games = 0;
 		}
 		
 	}
 	void print(){
 		System.out.println("player:        A        B");
-		System.out.println("Sets:          "+scores[0][0]+"        "+scores[0][1]);
-		System.out.println("Games:         "+scores[1][0]+"        "+scores[1][1]);
-		System.out.println("Points:       "+points[scores[2][0]]+"       "+points[scores[2][1]]);
+		System.out.println("Sets:          " + playerA.sets + "        " + playerB.sets);
+		System.out.println("Games:         " + playerA.games + "        " + playerB.games);
+	
+		if (playerA.points == playerB.points && points[playerA.points].equals("40"))
+			System.out.println("Points: DEUCE");
+		else
+			System.out.println("Points:       " + points[playerA.points] + "       " + points[playerB.points]);
+		
 		System.out.println("\n\n\n\n");
 	}
 
@@ -40,7 +71,6 @@ public class ScoreCalculator {
 	public Integer handleDeuce(Integer currentIndex) {
 		
 		String currentSequence = pointSeq.substring(currentIndex+1);
-		//System.out.println(currentSequence);
 		Integer tmp = 0;
 		while (tmp+2 <= currentSequence.length()) {
 			
@@ -68,21 +98,31 @@ public class ScoreCalculator {
 		for(int i=0;i<pointSeq.length();i++){
 			//System.out.println(i);
 			//System.out.println((int)pointSeq.charAt(i)-'A' + " | " +pointSeq.charAt(i));
-			scores[2][pointSeq.charAt(i)-'A']++;
-			if(scores[2][0]==3 && scores[2][1]==3){
+			if (pointSeq.charAt(i) == 'A')
+				playerA.points += 1;
+			else
+				playerB.points += 1;
+			//scores[2][pointSeq.charAt(i)-'A']++;
+			if(playerA.points ==3 && playerB.points == 3){
 				//System.out.println(i);
 				i = handleDeuce(i);
 				//System.out.println(i);
 			}
-			else if((scores[2][0] == 4 && scores[2][1]<3)|| (scores[2][1] == 4 && scores[2][0]<3)){
+			else if((playerA.points == 4 && playerB.points<3)|| (playerA.points == 4 && playerB.points<3)){
+				
 				handleWin(pointSeq.charAt(i)-'A');
 			}
 			
 		}
 	}
+	
+	public ScoreCalculator(Player playA, Player playB) {
+		this.playerA = playA;
+		this.playerB = playB;
+	}
 	public static void main(String[] args) {
-		ScoreCalculator tennisSC = new ScoreCalculator("ABABABABAAAAAAAAAAAAAAAAAAAAAAAAAB");
-		//tennisSC.handleDeuce(5);
+		ScoreCalculator tennisSC = new ScoreCalculator("ABABABAABAB");
+
 		tennisSC.calculateScore();
 		
 		//System.out.println(tennisSC.scores[0][0] + " | " + tennisSC.scores[0][1]);
